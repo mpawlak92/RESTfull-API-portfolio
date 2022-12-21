@@ -1,12 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const ejs = require('ejs');
+
 const mongoose = require('mongoose');
 
 const app = express();
-
-const URI =
-	'mongodb+srv://portfolioadmin:qwerty123456@portfoliodb.sfrdltp.mongodb.net/portfolioDB';
 
 app.set('view engine', 'ejs');
 
@@ -18,7 +16,7 @@ app.use(
 app.use(express.static('public'));
 
 mongoose.set('strictQuery', true);
-mongoose.connect(URI, { useNewUrlParser: true });
+mongoose.connect(process.env.DATABASE_URI, { useNewUrlParser: true });
 
 //create new schema
 
