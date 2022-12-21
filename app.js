@@ -1,19 +1,19 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-
 const mongoose = require('mongoose');
-
 const app = express();
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
-app.set('view engine', 'ejs');
+// app.set('view engine', 'ejs');
 
 app.use(
 	bodyParser.urlencoded({
 		extended: true,
 	})
 );
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
 mongoose.set('strictQuery', true);
 mongoose.connect(process.env.DATABASE_URI, { useNewUrlParser: true });
@@ -198,14 +198,20 @@ app
 		User.findOne({ username: username }, function (err, foundUser) {
 			if (!err) {
 				if (foundUser) {
-					if (foundUser.password === password) {
-						res.send(Boolean(true));
-					} else {
-						res.send({
-							status: Boolean(false),
-							message: 'Password or username is wrong!',
-						});
-					}
+					bcrypt.compare(password, foundUser.password, function (err, result) {
+						// result == true
+						if (!result) {
+							res.send({
+								status: Boolean(false),
+								message: 'Password or username is wrong!',
+							});
+						} else {
+							res.send({
+								status: Boolean(true),
+								message: 'All correct',
+							});
+						}
+					});
 				} else {
 					res.send('Password or username is wrong!');
 				}
@@ -223,6 +229,49 @@ app
 			}
 		});
 	});
+
+app.delete('/user/:_id', function (req, res) {
+	User.findOne({ _id: req.params._id }, function (err, foundUser) {
+		if (foundUser) {
+			User.deleteOne({ _id: req.params._id }, function (err) {
+				if (!err) {
+					res.send('Succesfully deleted user ' + req.params._id);
+				} else {
+					res.send(err);
+				}
+			});
+		} else {
+			res.send('User does not exist');
+		}
+	});
+});
+app.post('/register', function (req, res) {
+	bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
+		const username = req.body.username;
+
+		User.findOne({ username: username }, function (err, foundUser) {
+			if (!err) {
+				if (!foundUser) {
+					const newUser = new User({
+						username: req.body.username,
+						password: hash,
+					});
+					newUser.save(function (err) {
+						if (err) {
+							console.log(err);
+						} else {
+							res.send('New user is succesfully added');
+						}
+					});
+				} else {
+					res.send('User with this name alredy exist');
+				}
+			} else {
+				res.send(err);
+			}
+		});
+	});
+});
 app.listen(3000, function () {
 	console.log('Server started on port 3000');
 });
