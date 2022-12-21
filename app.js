@@ -126,6 +126,105 @@ app
 			}
 		});
 	});
+
+//////////////////////////////////////////////////////////////////// about me endpoint /////////////////////////////////////////////////////////
+
+const aboutmeSchema = {
+	description: String,
+	skills: Array,
+	contact: {
+		linkedin_link: String,
+		email: String,
+		phone: {
+			type: Number,
+			min: 9,
+			max: 9,
+		},
+	},
+	cv_link: String,
+	github_link: String,
+};
+
+const AboutmeData = mongoose.model('AboutmeData', aboutmeSchema);
+
+app
+	.route('/aboutme')
+	.get(function (req, res) {
+		AboutmeData.find(function (err, foundData) {
+			if (!err) {
+				res.send(foundData);
+			} else {
+				res.send(err);
+			}
+		});
+	})
+	.patch(function (req, res) {
+		AboutmeData.updateOne({ $set: req.body }, function (err) {
+			if (!err) {
+				res.send('Succesfully updated my datas');
+			} else {
+				res.send(err);
+			}
+		});
+	});
+//////////////////////////////////////////////////////////////////// user me endpoint /////////////////////////////////////////////////////////
+
+const userSchema = {
+	username: {
+		type: String,
+		required: true,
+	},
+	password: {
+		type: String,
+		required: true,
+	},
+};
+
+const User = mongoose.model('User', userSchema);
+
+app
+	.route('/user')
+	.get(function (req, res) {
+		User.find(function (err, foundData) {
+			if (!err) {
+				res.send(foundData);
+			} else {
+				res.send(err);
+			}
+		});
+	})
+	.post(function (req, res) {
+		const username = req.body.username;
+		const password = req.body.password;
+
+		User.findOne({ username: username }, function (err, foundUser) {
+			if (!err) {
+				if (foundUser) {
+					if (foundUser.password === password) {
+						res.send(Boolean(true));
+					} else {
+						res.send({
+							status: Boolean(false),
+							message: 'Password or username is wrong!',
+						});
+					}
+				} else {
+					res.send('Password or username is wrong!');
+				}
+			} else {
+				res.send(err);
+			}
+		});
+	})
+	.patch(function (req, res) {
+		User.updateOne({ $set: req.body }, function (err) {
+			if (!err) {
+				res.send('Succesfully updated user datas');
+			} else {
+				res.send(err);
+			}
+		});
+	});
 app.listen(3000, function () {
 	console.log('Server started on port 3000');
 });
