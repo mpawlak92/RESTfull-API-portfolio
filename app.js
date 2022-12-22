@@ -6,19 +6,14 @@ const app = express();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-// app.set('view engine', 'ejs');
-
 app.use(
 	bodyParser.urlencoded({
 		extended: true,
 	})
 );
-// app.use(express.static('public'));
 
 mongoose.set('strictQuery', true);
 mongoose.connect(process.env.DATABASE_URI, { useNewUrlParser: true });
-
-//create new schema
 
 const projectSchema = {
 	name: String,
@@ -125,7 +120,7 @@ app
 		});
 	});
 
-//////////////////////////////////////////////////////////////////// about me endpoint /////////////////////////////////////////////////////////
+////////////////////////////////// about me endpoint //////////////////////////////////
 
 const aboutmeSchema = {
 	description: String,
@@ -165,7 +160,7 @@ app
 			}
 		});
 	});
-//////////////////////////////////////////////////////////////////// user me endpoint /////////////////////////////////////////////////////////
+///////////////////////////// user me endpoint /////////////////////////////////////
 
 const userSchema = {
 	username: {
@@ -272,6 +267,6 @@ app.post('/register', function (req, res) {
 		});
 	});
 });
-app.listen(3000, function () {
+app.listen(process.env.PORT || 3000, function () {
 	console.log('Server started on port 3000');
 });
