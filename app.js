@@ -1,5 +1,4 @@
 const cors = require('cors');
-
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -216,7 +215,7 @@ app
 						}
 					});
 				} else {
-					res.send('Password or username is wrong!');
+					res.send('username is wrong!');
 				}
 			} else {
 				res.send(err);
