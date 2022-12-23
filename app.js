@@ -14,9 +14,12 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(
-	bodyParser.urlencoded({
+	bodyParser.json({
 		extended: true,
 	})
+	// bodyParser.urlencoded({
+	// extended: true,
+	// })
 );
 
 mongoose.set('strictQuery', true);
@@ -198,6 +201,8 @@ app
 		const password = req.body.password;
 
 		User.findOne({ username: username }, function (err, foundUser) {
+			console.debug(foundUser);
+
 			if (!err) {
 				if (foundUser) {
 					bcrypt.compare(password, foundUser.password, function (err, result) {
@@ -205,7 +210,7 @@ app
 						if (!result) {
 							res.send({
 								status: Boolean(false),
-								message: 'Password or username is wrong!',
+								message: 'Provided cridentials are incorect!',
 							});
 						} else {
 							res.send({
@@ -215,7 +220,7 @@ app
 						}
 					});
 				} else {
-					res.send('username is wrong!');
+					res.send('Provided cridentials are incorect!');
 				}
 			} else {
 				res.send(err);
@@ -274,6 +279,6 @@ app.post('/register', function (req, res) {
 		});
 	});
 });
-app.listen(process.env.PORT || 3000, function () {
-	console.log('Server started on port 3000');
+app.listen(process.env.PORT || 5001, function () {
+	console.log('Server started on port 3001');
 });
