@@ -208,11 +208,13 @@ app
 					bcrypt.compare(password, foundUser.password, function (err, result) {
 						// result == true
 						if (!result) {
+							res.status(401);
 							res.send({
 								status: Boolean(false),
 								message: 'Provided cridentials are incorect!',
 							});
 						} else {
+							res.status(200);
 							res.send({
 								status: Boolean(true),
 								message: 'All correct',
@@ -220,6 +222,7 @@ app
 						}
 					});
 				} else {
+					res.status(401);
 					res.send('Provided cridentials are incorect!');
 				}
 			} else {
