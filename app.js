@@ -164,7 +164,10 @@ app
 	.patch(function (req, res) {
 		AboutmeData.updateOne({ $set: req.body }, function (err) {
 			if (!err) {
-				res.send('Succesfully updated my datas');
+				res.send({
+					data: req.body,
+					message: 'Succesfully updated my datas',
+				});
 			} else {
 				res.send(err);
 			}
