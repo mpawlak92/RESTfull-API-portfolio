@@ -165,7 +165,7 @@ app
 		AboutmeData.updateOne({ $set: req.body }, function (err) {
 			if (!err) {
 				res.send({
-					data: req.body,
+					info: { ...req.body },
 					message: 'Succesfully updated my datas',
 				});
 			} else {
