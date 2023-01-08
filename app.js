@@ -124,7 +124,7 @@ app
 				Project.deleteOne({ _id: req.params._id }, function (err) {
 					if (!err) {
 						res.status(201);
-						res.send('Succesfully deleted project ' + req.params._id);
+						res.send('Project succesfuly deleted ');
 					} else {
 						res.send(err);
 					}
@@ -170,7 +170,7 @@ app
 		AboutmeData.updateOne({ $set: req.body }, function (err) {
 			if (!err) {
 				res.status(201);
-				res.send('Succesfully updated my datas');
+				res.send('Succesfully updated my data');
 			} else {
 				res.send(err);
 			}
@@ -237,7 +237,7 @@ app
 	.patch(function (req, res) {
 		User.updateOne({ $set: req.body }, function (err) {
 			if (!err) {
-				res.send('Succesfully updated user datas');
+				res.send('Succesfully updated user data');
 			} else {
 				res.send(err);
 			}
