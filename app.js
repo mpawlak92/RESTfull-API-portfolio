@@ -55,6 +55,7 @@ app
 
 		newProject.save(function (err) {
 			if (!err) {
+				res.status(201);
 				res.send('Succesfully added new project');
 			} else {
 				res.send(err);
@@ -64,6 +65,7 @@ app
 	.delete(function (req, res) {
 		Project.deleteMany(function (err) {
 			if (!err) {
+				res.status(201);
 				res.send('Succesfully deleted all projects');
 			} else {
 				res.send(err);
@@ -94,6 +96,7 @@ app
 			},
 			function (err) {
 				if (!err) {
+					res.status(201);
 					res.send('Succesfully updated project');
 				} else {
 					res.send(err);
@@ -107,6 +110,7 @@ app
 			{ $set: req.body },
 			function (err) {
 				if (!err) {
+					res.status(201);
 					res.send('Succesfully updated project');
 				} else {
 					res.send(err);
@@ -119,6 +123,7 @@ app
 			if (foundProject) {
 				Project.deleteOne({ _id: req.params._id }, function (err) {
 					if (!err) {
+						res.status(201);
 						res.send('Succesfully deleted project ' + req.params._id);
 					} else {
 						res.send(err);
@@ -155,7 +160,7 @@ app
 	.get(function (req, res) {
 		AboutmeData.find(function (err, foundData) {
 			if (!err) {
-				res.send(foundData);
+				res.send(...foundData);
 			} else {
 				res.send(err);
 			}
@@ -191,7 +196,7 @@ app
 	.get(function (req, res) {
 		User.find(function (err, foundData) {
 			if (!err) {
-				res.send(foundData);
+				res.send(...foundData);
 			} else {
 				res.send(err);
 			}
@@ -267,7 +272,7 @@ app.post('/register', function (req, res) {
 					});
 					newUser.save(function (err) {
 						if (err) {
-							console.log(err);
+							res.send(err);
 						} else {
 							res.send('New user is succesfully added');
 						}
