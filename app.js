@@ -53,10 +53,14 @@ app
 			git_link: req.body.git_link,
 		});
 
-		newProject.save(function (err) {
+		newProject.save(function (err, requestResult) {
 			if (!err) {
+				const objectId = requestResult._id.toString();
 				res.status(201);
-				res.send('Succesfully added new project');
+				res.send({
+					message: 'Succesfully added new project',
+					_id: objectId,
+				});
 			} else {
 				res.send(err);
 			}
