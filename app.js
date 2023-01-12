@@ -5,13 +5,14 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = express();
 const multer = require('multer');
-const path = require('path');
+let path = require('path');
+
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		cb(null, 'path');
+		cb(null, './img/');
 	},
 	filename: (req, file, cb) => {
-		console.log(file);
+		// console.log(req);
 		cb(null, Date.now() + path.extname(file.originalname));
 	},
 });
@@ -27,6 +28,7 @@ const corsOptions = {
 	optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
+app.use('/img', express.static('img'));
 app.use(
 	bodyParser.json({
 		extended: true,
@@ -44,6 +46,7 @@ const projectSchema = {
 	description: String,
 	technologys: Array,
 	git_link: String,
+	projectCover: String,
 };
 
 const Project = mongoose.model('Project', projectSchema);
@@ -65,10 +68,13 @@ app
 			description: req.body.description,
 			technologys: req.body.technologys,
 			git_link: req.body.git_link,
+
+			projectCover: path.normalize(req.file.path),
 		});
 
 		newProject.save(function (err, requestResult) {
 			if (!err) {
+				console.log(req.file);
 				const objectId = requestResult._id.toString();
 				res.status(201);
 				res.send({
