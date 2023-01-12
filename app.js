@@ -4,6 +4,20 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = express();
+const multer = require('multer');
+const path = require('path');
+const storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+		cb(null, 'path');
+	},
+	filename: (req, file, cb) => {
+		console.log(file);
+		cb(null, Date.now() + path.extname(file.originalname));
+	},
+});
+
+const upload = multer({ storage: storage });
+
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -45,7 +59,7 @@ app
 			}
 		});
 	})
-	.post(function (req, res) {
+	.post(upload.single('cover'), function (req, res) {
 		const newProject = new Project({
 			name: req.body.name,
 			description: req.body.description,
