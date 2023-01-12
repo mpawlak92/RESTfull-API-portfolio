@@ -80,6 +80,7 @@ app
 				res.send({
 					message: 'Succesfully added new project',
 					_id: objectId,
+					projectCover: path.normalize(req.file.path),
 				});
 			} else {
 				res.send(err);
