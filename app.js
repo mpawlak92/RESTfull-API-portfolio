@@ -5,7 +5,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = express();
 const multer = require('multer');
-let path = require('path');
+const path = require('path');
+const fs = require('fs');
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
@@ -148,8 +149,15 @@ app
 			if (foundProject) {
 				Project.deleteOne({ _id: req.params._id }, function (err) {
 					if (!err) {
-						res.status(201);
-						res.send('Project succesfuly deleted ');
+						console.log(foundProject);
+						fs.unlink(foundProject.projectCover, function (error) {
+							if (error) {
+								res.send(error);
+							} else {
+								res.status(201);
+								res.send('Project succesfuly deleted ');
+							}
+						});
 					} else {
 						res.send(err);
 					}
