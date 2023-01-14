@@ -64,29 +64,51 @@ app
 		});
 	})
 	.post(upload.single('cover'), function (req, res) {
-		const newProject = new Project({
-			name: req.body.name,
-			description: req.body.description,
-			technologys: req.body.technologys,
-			git_link: req.body.git_link,
+		if (req.file === undefined) {
+			const newProject = new Project({
+				name: req.body.name,
+				description: req.body.description,
+				technologys: req.body.technologys,
+				git_link: req.body.git_link,
+				projectCover: 'null',
+			});
 
-			projectCover: path.normalize(req.file.path),
-		});
+			newProject.save(function (err, requestResult) {
+				if (!err) {
+					const objectId = requestResult._id.toString();
+					res.status(201);
+					res.send({
+						message: 'Succesfully added new project',
+						_id: objectId,
+						projectCover: 'null',
+					});
+				} else {
+					res.send(err);
+				}
+			});
+		} else {
+			const newProject = new Project({
+				name: req.body.name,
+				description: req.body.description,
+				technologys: req.body.technologys,
+				git_link: req.body.git_link,
+				projectCover: path.normalize(req.file.path),
+			});
 
-		newProject.save(function (err, requestResult) {
-			if (!err) {
-				console.log(req.file);
-				const objectId = requestResult._id.toString();
-				res.status(201);
-				res.send({
-					message: 'Succesfully added new project',
-					_id: objectId,
-					projectCover: path.normalize(req.file.path),
-				});
-			} else {
-				res.send(err);
-			}
-		});
+			newProject.save(function (err, requestResult) {
+				if (!err) {
+					const objectId = requestResult._id.toString();
+					res.status(201);
+					res.send({
+						message: 'Succesfully added new project',
+						_id: objectId,
+						projectCover: path.normalize(req.file.path),
+					});
+				} else {
+					res.send(err);
+				}
+			});
+		}
 	})
 	.delete(function (req, res) {
 		Project.deleteMany(function (err) {
@@ -130,26 +152,90 @@ app
 			}
 		);
 	})
-	.patch(function (req, res) {
-		Project.updateOne(
-			{ _id: req.params._id },
-			{ $set: req.body },
-			function (err) {
-				if (!err) {
-					res.status(201);
-					res.send('Succesfully updated project');
-				} else {
-					res.send(err);
+
+	.patch(upload.single('cover'), function (req, res) {
+		Project.findOne({ _id: req.params._id }, function (err, foundProject) {
+			if (err) {
+				res.send(err);
+			} else {
+				if (req.body.cover == 'null') {
+					const newObjectBody = {
+						...req.body,
+						projectCover: foundProject.projectCover,
+					};
+					Project.updateOne(
+						{ _id: req.params._id },
+						{ $set: newObjectBody },
+						function (err) {
+							if (!err) {
+								res.status(201);
+								res.send({
+									message: 'Succesfully updated project',
+									updatedProject: newObjectBody,
+								});
+							} else {
+								res.send(err);
+							}
+						}
+					);
+				} else if (req.file.path !== undefined) {
+					if (foundProject.projectCover === 'null') {
+						const newObjectBody = {
+							...req.body,
+							projectCover: path.normalize(req.file.path),
+						};
+						Project.updateOne(
+							{ _id: req.params._id },
+							{ $set: newObjectBody },
+							function (err) {
+								if (!err) {
+									res.status(201);
+									res.send({
+										message: 'Succesfully updated project',
+										updatedProject: newObjectBody,
+									});
+								} else {
+									res.send(err);
+								}
+							}
+						);
+					} else {
+						fs.unlink(foundProject.projectCover, function (error) {
+							if (error) {
+								res.send(error);
+							} else {
+								const newObjectBody = {
+									...req.body,
+									projectCover: path.normalize(req.file.path),
+								};
+								Project.updateOne(
+									{ _id: req.params._id },
+									{ $set: newObjectBody },
+									function (err) {
+										if (!err) {
+											res.status(201);
+											res.send({
+												message: 'Succesfully updated project',
+												updatedProject: newObjectBody,
+											});
+										} else {
+											res.send(err);
+										}
+									}
+								);
+							}
+						});
+					}
 				}
 			}
-		);
+		});
 	})
+
 	.delete(function (req, res) {
 		Project.findOne({ _id: req.params._id }, function (err, foundProject) {
 			if (foundProject) {
 				Project.deleteOne({ _id: req.params._id }, function (err) {
 					if (!err) {
-						console.log(foundProject);
 						fs.unlink(foundProject.projectCover, function (error) {
 							if (error) {
 								res.send(error);
