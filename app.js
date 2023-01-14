@@ -233,17 +233,22 @@ app
 
 	.delete(function (req, res) {
 		Project.findOne({ _id: req.params._id }, function (err, foundProject) {
-			if (foundProject) {
+			if (!err) {
 				Project.deleteOne({ _id: req.params._id }, function (err) {
 					if (!err) {
-						fs.unlink(foundProject.projectCover, function (error) {
-							if (error) {
-								res.send(error);
-							} else {
-								res.status(201);
-								res.send('Project succesfuly deleted ');
-							}
-						});
+						if (foundProject.projectCover !== 'null') {
+							fs.unlink(foundProject.projectCover, function (error) {
+								if (error) {
+									res.send(error);
+								} else {
+									res.status(201);
+									res.send('Project succesfuly deleted ');
+								}
+							});
+						} else {
+							res.status(201);
+							res.send('Project succesfuly deleted ');
+						}
 					} else {
 						res.send(err);
 					}
