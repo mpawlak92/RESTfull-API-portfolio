@@ -7,6 +7,7 @@ const app = express();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
@@ -409,6 +410,20 @@ app.post('/register', function (req, res) {
 			}
 		});
 	});
+});
+app.post('/recaptcha', function (req, res) {
+	const token = req.body;
+
+	axios.post(
+		`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`
+	);
+
+	//check response status and send back to the client-side
+	if (res.status(200)) {
+		res.send('Human');
+	} else {
+		res.send('Robot');
+	}
 });
 app.listen(process.env.PORT || 3001, function () {
 	console.log('Server started on port 3001');
