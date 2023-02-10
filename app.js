@@ -25,7 +25,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const corsOptions = {
-	origin: 'https://mpawlak92.github.io/Portfolio/',
+	origin: 'https://mpawlak92.github.io',
 	credentials: true, //access-control-allow-credentials:true
 	optionSuccessStatus: 200,
 };
