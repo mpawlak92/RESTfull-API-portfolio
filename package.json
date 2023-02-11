@@ -2,9 +2,10 @@
 	"name": "rest_api",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "app.js",
 	"scripts": {
-		"server": "npx nodemon app.js"
+		"server": "npx nodemon app.js",
+		"start": "node app.js"
 	},
 	"repository": {
 		"type": "git",
