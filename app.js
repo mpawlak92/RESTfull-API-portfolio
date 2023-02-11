@@ -48,6 +48,7 @@ const projectSchema = {
 	description: String,
 	technologys: Array,
 	git_link: String,
+	demo_link: String,
 	projectCover: String,
 };
 
@@ -71,6 +72,7 @@ app
 				description: req.body.description,
 				technologys: req.body.technologys,
 				git_link: req.body.git_link,
+				demo_link: req.body.demo_link,
 				projectCover: 'null',
 			});
 
@@ -93,6 +95,7 @@ app
 				description: req.body.description,
 				technologys: req.body.technologys,
 				git_link: req.body.git_link,
+				demo_link: req.body.demo_link,
 				projectCover: path.normalize(req.file.path),
 			});
 
@@ -142,6 +145,7 @@ app
 				description: req.body.description,
 				technologys: req.body.technologys,
 				git_link: req.body.git_link,
+				demo_link: req.body.demo_link,
 			},
 			function (err) {
 				if (!err) {
@@ -271,7 +275,7 @@ const aboutmeSchema = {
 		phone: {
 			type: Number,
 			min: 9,
-			max: 9,
+			max: 12,
 		},
 	},
 	cv_link: String,
