@@ -96,7 +96,7 @@ app
 				technologys: req.body.technologys,
 				git_link: req.body.git_link,
 				demo_link: req.body.demo_link,
-				projectCover: path.normalize(req.file.path),
+				projectCover: fs.readFileSync(req.file.path, 'base64'),
 			});
 
 			newProject.save(function (err, requestResult) {
@@ -106,7 +106,7 @@ app
 					res.send({
 						message: 'Succesfully added new project',
 						_id: objectId,
-						projectCover: path.normalize(req.file.path),
+						projectCover: fs.readFileSync(req.file.path, 'base64'),
 					});
 				} else {
 					res.send(err);
