@@ -4,22 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = express();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const axios = require('axios');
-
-const storage = multer.diskStorage({
-	destination: (req, file, cb) => {
-		cb(null, './img/');
-	},
-	filename: (req, file, cb) => {
-		// console.log(req);
-		cb(null, Date.now() + path.extname(file.originalname));
-	},
-});
-
-const upload = multer({ storage: storage });
 
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -30,7 +15,8 @@ const corsOptions = {
 	optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
-app.use('/img', express.static('img'));
+// app.use('/img', express.static('img'));
+app.use(express.json({ limit: '50mb' }));
 app.use(
 	bodyParser.json({
 		extended: true,
@@ -65,54 +51,34 @@ app
 			}
 		});
 	})
-	.post(upload.single('cover'), function (req, res) {
-		if (req.file === undefined) {
-			const newProject = new Project({
-				name: req.body.name,
-				description: req.body.description,
-				technologys: req.body.technologys,
-				git_link: req.body.git_link,
-				demo_link: req.body.demo_link,
-				projectCover: 'null',
-			});
+	.post(function (req, res) {
+		const newProject = new Project({
+			name: req.body.name,
+			description: req.body.description,
+			technologys: req.body.technologys,
+			git_link: req.body.git_link,
+			demo_link: req.body.demo_link,
+			projectCover: req.body.projectCover,
+		});
 
-			newProject.save(function (err, requestResult) {
-				if (!err) {
-					const objectId = requestResult._id.toString();
-					res.status(201);
-					res.send({
-						message: 'Succesfully added new project',
-						_id: objectId,
-						projectCover: 'null',
-					});
-				} else {
-					res.send(err);
-				}
-			});
-		} else {
-			const newProject = new Project({
-				name: req.body.name,
-				description: req.body.description,
-				technologys: req.body.technologys,
-				git_link: req.body.git_link,
-				demo_link: req.body.demo_link,
-				projectCover: fs.readFileSync(req.file.path, 'base64'),
-			});
-
-			newProject.save(function (err, requestResult) {
-				if (!err) {
-					const objectId = requestResult._id.toString();
-					res.status(201);
-					res.send({
-						message: 'Succesfully added new project',
-						_id: objectId,
-						projectCover: fs.readFileSync(req.file.path, 'base64'),
-					});
-				} else {
-					res.send(err);
-				}
-			});
-		}
+		newProject.save(function (err, requestResult) {
+			if (!err) {
+				const objectId = requestResult._id.toString();
+				res.status(201);
+				res.send({
+					message: 'Succesfully added new project',
+					_id: objectId,
+					name: req.body.name,
+					description: req.body.description,
+					technologys: req.body.technologys,
+					git_link: req.body.git_link,
+					demo_link: req.body.demo_link,
+					projectCover: req.body.projectCover,
+				});
+			} else {
+				res.send(err);
+			}
+		});
 	})
 	.delete(function (req, res) {
 		Project.deleteMany(function (err) {
@@ -158,12 +124,13 @@ app
 		);
 	})
 
-	.patch(upload.single('cover'), function (req, res) {
+	.patch(function (req, res) {
 		Project.findOne({ _id: req.params._id }, function (err, foundProject) {
 			if (err) {
 				res.send(err);
 			} else {
-				if (req.body.cover == 'null') {
+				// console.log(req.body);
+				if (req.body.projectCover === null) {
 					const newObjectBody = {
 						...req.body,
 						projectCover: foundProject.projectCover,
@@ -176,61 +143,29 @@ app
 								res.status(201);
 								res.send({
 									message: 'Succesfully updated project',
-									updatedProject: newObjectBody,
+									...newObjectBody,
 								});
 							} else {
 								res.send(err);
 							}
 						}
 					);
-				} else if (req.file.path !== undefined) {
-					if (foundProject.projectCover === 'null') {
-						const newObjectBody = {
-							...req.body,
-							projectCover: fs.readFileSync(req.file.path, 'base64'),
-						};
-						Project.updateOne(
-							{ _id: req.params._id },
-							{ $set: newObjectBody },
-							function (err) {
-								if (!err) {
-									res.status(201);
-									res.send({
-										message: 'Succesfully updated project',
-										updatedProject: newObjectBody,
-									});
-								} else {
-									res.send(err);
-								}
-							}
-						);
-					} else {
-						fs.unlink(foundProject.projectCover, function (error) {
-							if (error) {
-								res.send(error);
-							} else {
-								const newObjectBody = {
+				} else {
+					Project.updateOne(
+						{ _id: req.params._id },
+						{ $set: req.body },
+						function (err) {
+							if (!err) {
+								res.status(201);
+								res.send({
+									message: 'Succesfully updated project',
 									...req.body,
-									projectCover: fs.readFileSync(req.file.path, 'base64'),
-								};
-								Project.updateOne(
-									{ _id: req.params._id },
-									{ $set: newObjectBody },
-									function (err) {
-										if (!err) {
-											res.status(201);
-											res.send({
-												message: 'Succesfully updated project',
-												updatedProject: newObjectBody,
-											});
-										} else {
-											res.send(err);
-										}
-									}
-								);
+								});
+							} else {
+								res.send(err);
 							}
-						});
-					}
+						}
+					);
 				}
 			}
 		});
@@ -241,19 +176,8 @@ app
 			if (!err) {
 				Project.deleteOne({ _id: req.params._id }, function (err) {
 					if (!err) {
-						if (foundProject.projectCover !== 'null') {
-							fs.unlink(foundProject.projectCover, function (error) {
-								if (error) {
-									res.send(error);
-								} else {
-									res.status(201);
-									res.send('Project succesfuly deleted ');
-								}
-							});
-						} else {
-							res.status(201);
-							res.send('Project succesfuly deleted ');
-						}
+						res.status(201);
+						res.send('Project succesfuly deleted ');
 					} else {
 						res.send(err);
 					}
