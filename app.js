@@ -187,7 +187,7 @@ app
 					if (foundProject.projectCover === 'null') {
 						const newObjectBody = {
 							...req.body,
-							projectCover: path.normalize(req.file.path),
+							projectCover: fs.readFileSync(req.file.path, 'base64'),
 						};
 						Project.updateOne(
 							{ _id: req.params._id },
@@ -211,7 +211,7 @@ app
 							} else {
 								const newObjectBody = {
 									...req.body,
-									projectCover: path.normalize(req.file.path),
+									projectCover: fs.readFileSync(req.file.path, 'base64'),
 								};
 								Project.updateOne(
 									{ _id: req.params._id },
